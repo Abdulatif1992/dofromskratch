@@ -1,6 +1,8 @@
+import 'package:dofromscratch/class/book_titles.dart';
+import 'package:dofromscratch/class/epub_to_list.dart';
+import 'package:dofromscratch/test_screen.dart';
 import 'package:dofromscratch/views/scrollbar_exp.dart';
 import 'package:flutter/material.dart';
-import 'package:epubx/epubx.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
@@ -25,20 +27,22 @@ class _SecondScreenState extends State<SecondScreen> {
           ElevatedButton(
             onPressed: () async{ 
               BuildContext currentContext = context;
-
-
-              List<String> htmlList = await parseEpub();              
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
+              var htmlAndTitle = await getList.parseEpubWithChapters(); 
+              List<String> htmlList =    htmlAndTitle.item1;          
               String fullHtml = htmlList.last;
               htmlList.length = htmlList.length-1;  
+              List<BookTitle> titles = htmlAndTitle.item2;
 
               // Use the captured context inside the async function.
               if (!currentContext.mounted) return;
               await Navigator.of(currentContext).push(MaterialPageRoute(
                 builder: (context) => ScrollBarExp(
                   data: htmlList,
-                  page: 7,
-                  location: 825.2164322,
+                  page: 1,
+                  location: 0,
                   fullHtml: fullHtml,
+                  titles: titles,
                 ),
               ));         
             },
@@ -47,9 +51,19 @@ class _SecondScreenState extends State<SecondScreen> {
                     
           const SizedBox(height: 10),          
           ElevatedButton(
-            onPressed: () { parseEpub();},
-            child: const Text('Parse epub'),
-          ),          
+            onPressed: () { saveFromAssetToLocal();},
+            child: const Text('Save file to local'),
+          ), 
+          const SizedBox(height: 10),          
+          ElevatedButton(
+            onPressed: () { 
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const TestScreen(),
+              ));
+            },
+            child: const Text('Go to test Screen'),
+          ), 
+            
         ],
       ),
     );
@@ -70,59 +84,6 @@ class _SecondScreenState extends State<SecondScreen> {
 
     await file.writeAsBytes(bytes);
   }
- 
-  Future<List<String>> parseEpub() async{
-    await saveFromAssetToLocal();
-
-    var dir = await getApplicationDocumentsDirectory();
-
-    // Specify the asset file name
-    String filename = 'eliot-small.epub';
-    
-    io.File file = io.File('${dir.path}/$filename');
-    List<int> bytes = await file.readAsBytes();
-
-
-    // Opens a book and reads all of its content into memory
-    EpubBook epubBook = await EpubReader.readBook(bytes);
-
-    // Extract HTML content    
-    
-    EpubContent bookContent = epubBook.Content!;
-        // All XHTML files in the book (file name is the key)
-    Map<String, EpubTextContentFile> htmlFiles = bookContent.Html!;
-
-    String htmlContent = "";
-    List<String> list = []; 
-
-    for (EpubTextContentFile htmlFile in htmlFiles.values) {
-      htmlContent += htmlFile.Content!; 
-
-      String delimiter = "<pagebr></pagebr>";
-      int delimiterIndex = htmlFile.Content!.indexOf(delimiter);
-      
-      if (delimiterIndex != -1) {
-        int startIndex = 0;
-
-        while (delimiterIndex != -1) {
-          list.add(htmlFile.Content!.substring(startIndex, delimiterIndex).trim());
-          startIndex = delimiterIndex + delimiter.length;
-          
-          delimiterIndex = htmlFile.Content!.indexOf(delimiter, startIndex);
-        }
-
-        // Add the remaining content if any
-        if (startIndex < htmlFile.Content!.length) {
-          list.add(htmlFile.Content!.substring(startIndex).trim());
-        }
-      }
-      else{
-        list.add(htmlFile.Content!.trim());
-      }
-    }
-
-    list.add(htmlContent);
-    return list;
-  }
+  
  
 }

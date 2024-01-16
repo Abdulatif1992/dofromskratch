@@ -1,3 +1,4 @@
+import 'package:dofromscratch/class/book_titles.dart';
 import 'package:dofromscratch/views/image_view.dart';
 import 'package:dofromscratch/views/part_of_html.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +6,14 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 
 class ScrollBarExp extends StatefulWidget {
-  const ScrollBarExp({super.key, required this.data, required this.page, required this.location, required this.fullHtml});
+  const ScrollBarExp({super.key, required this.data, required this.page, required this.location, required this.fullHtml, required this.titles});
 
   final List<String> data;
   final int page;
   final double location;
 
   final String fullHtml;
+  final List<BookTitle> titles;
 
   @override
   State<ScrollBarExp> createState() => _ScrollBarExpState();
@@ -28,7 +30,9 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
   int currentContainerIndex = 0;
   PageController _pageController = PageController();
   bool reverseResult = false;
+  bool reverseResult2 = false;
   double textSize = 16;
+  String currentTitle = "";
 
   Color backroundColor = const Color.fromARGB(255, 220, 223, 230);
   Color backroundTextColor = Colors.black;
@@ -45,8 +49,9 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
 
   @override
   void initState() {
-    pages = widget.data;      
+    pages = widget.data;  
     
+    currentTitle = getCurrentTitile(widget.page);
 
     super.initState();
     // Create a list of controllers for each SingleChildScrollView
@@ -86,6 +91,9 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
   }  
 
   void _specialLocation(double location){
+    // setState(() {
+    //   reverseResult2 = true;
+    // });
     _scrollControllers![currentPage].animateTo(
       location,
       duration: const Duration(milliseconds: 500), // You can adjust the duration as per your preference
@@ -103,8 +111,38 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
   void _previousPage(){
     _pageController.animateToPage(_pageController.page!.toInt() - 1,
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeIn
+      curve: Curves.easeOut
     );
+  }
+
+  void _specialPage(int page){
+    setState(() {
+      reverseResult2 = true;
+    });
+    // _pageController.animateToPage(page,
+    //   duration: const Duration(milliseconds: 400),
+    //   curve: Curves.easeIn
+    // );   
+    _pageController.jumpToPage(page); 
+  }
+
+  String getCurrentTitile(int page){
+    String currentTitle = "";
+    if(page == 0)
+    {
+      currentTitle = widget.titles[0].name;
+      return currentTitle;
+    }
+    else
+    {
+      for( int  i =  widget.titles.length -1; i >=0; i-- ) { 
+        if(widget.titles[i].page <= page){      
+            currentTitle = widget.titles[i].name;    
+            return currentTitle;                         
+        } 
+      } 
+    }
+    return currentTitle;
   }
   
 
@@ -180,16 +218,29 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
                     });
                     // Do something for the next page
                   } else if (index < currentPage) {
+                    if(reverseResult2 == true){
+                      setState(() {                        
+                        reverseResult = false;
+                        reverseResult2 = false;
+                      });
+
+                    } else {
                       setState(() {
-                      reverseResult = true;
-                    });
-                    // Do something for the previous page
-                  }
-    
+                        reverseResult = true;
+                      });
+                      // Do something for the previous page
+                    }
+                      
+                  }    
                   // Update the current page
                   setState(() {
                     currentPage = index;
                   });
+
+                  setState(() {
+                    currentTitle = getCurrentTitile(index);
+                  });  
+                  
                 },
                 itemBuilder: (context, index) {
                   return Container(
@@ -247,180 +298,246 @@ class _ScrollBarExpState extends State<ScrollBarExp> {
               ),
             ),
             Visibility(
-                visible: isFooterVisible,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.fromLTRB(10, 30, 10, 10),
-                      color: const Color.fromARGB(255, 231, 51, 90),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.menu),
-                            color: Colors.white,
-                            tooltip: 'Increase volume by 10',
-                            onPressed: () {},
-                          ),                      
-                          IconButton(
-                            icon: const Icon(Icons.settings),
-                            color: Colors.white,
-                            iconSize: 30,
-                            tooltip: 'Increase volume by 10',
-                            onPressed: () {
-                              settingScreenVisibility();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: 30,
-                      margin: const EdgeInsets.fromLTRB(10, 30, 10, 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 50),
-                      color: const Color.fromARGB(255, 231, 51, 90).withOpacity(0.7),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            color: Colors.white,
-                            icon: const Icon(Icons.navigate_before),
-                            tooltip: 'Increase volume by 10',
-                            onPressed: () {_previousPage();},
-                          ),
-                          Text("${currentPage+1} / ${pages!.length}",style: const TextStyle(color: Colors.white),),
-                          IconButton(
-                            color: Colors.white,
-                            icon: const Icon(Icons.navigate_next),
-                            tooltip: 'Increase volume by 10',
-                            onPressed: () {_nextPage();},
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            Visibility(
-              visible: settingScreen,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              visible: isFooterVisible,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10, 85, 10, 10),
-                    height: 250,
-                    width: 250,
-                    color: const Color.fromARGB(255, 238, 231, 232),
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 40,
-                          width: 250,
-                          alignment: Alignment.center,
-                          color: const Color.fromARGB(255, 231, 51, 90),
-                          child: const Text("settings", style:TextStyle(color: Colors.white, fontSize: 18)),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                iconSize: 18,
-                                icon: const Icon(Icons.format_color_text),
-                                tooltip: 'Increase volume by 10',
-                                onPressed: () {
-                                  setState(() {
-                                    textSize -= 2;
-                                  });
-                                },
-                              ),
-                              const SizedBox(width: 50,),
-                              IconButton(
-                                icon: const Icon(Icons.format_color_text),
-                                iconSize: 30,
-                                tooltip: 'Increase volume by 10',
-                                onPressed: () {
-                                  setState(() {
-                                    textSize += 2;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        DropdownButton(
-                          value: selectedValue,
-                          elevation: 16,
-                          underline: Container(
-                            height: 2,
-                            color: Colors.black,
-                          ),
-                          onChanged: (String? value) {
-                            // This is called when the user selects an item.
-                            setState(() {
-                              selectedValue = value!;
-                            });
-                          },
-                          items: items.map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 20,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            OutlinedButton(onPressed: (){
-                                setState(() {
-                                  backroundColor = const Color.fromARGB(255, 235, 233, 233);
-                                  backroundTextColor = Colors.black;
-                                });
-                              },                              
-                              style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),),
-                              child: const Text('default', style: TextStyle(color: Colors.black),),
-                            ),
-    
-                            OutlinedButton(onPressed: (){
-                                setState(() {
-                                  backroundColor = const Color.fromARGB(124, 196, 196, 166);
-                                  backroundTextColor = Colors.black;
-                                });
-                              },                               
-                              style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),), 
-                              child: const Text('sepia', style: TextStyle(color: Colors.black),), 
-                            ),
-    
-                            OutlinedButton(onPressed: (){
-                                setState(() {
-                                  backroundColor = const Color.fromARGB(255, 22, 22, 22);
-                                  backroundTextColor = Colors.white;
-                                });
-                              },                              
-                              style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),), 
-                              child: const Text('night', style: TextStyle(color: Colors.black),),
-                            ),                              
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                  _appBar(),
+                  _footer(),
                 ],
               ),
+            ),
+            Visibility(
+              visible: settingScreen,
+              child: _settingsScreen(),
             ),
             ]
           ),
         ),
       ),
     );
+  }  
+
+  Widget _menuButton(){
+    return PopupMenuButton<String>(
+      color: const Color.fromARGB(255, 238, 231, 232),
+      offset: const Offset(0, 54),
+      icon: const Icon(Icons.menu),
+      onSelected: (String result) {
+        // Handle the selection from the dropdown menu here
+        //print("Tushunmadim nega qayta ishlaydi "); // For demonstration, printing the selected item
+        setState(() {
+          currentTitle = widget.titles[int.parse(result)].name;
+        });    
+        _specialPage(widget.titles[int.parse(result)].page);
+      },
+      itemBuilder: (BuildContext context) {
+        return widget.titles.map((BookTitle title) {
+          return PopupMenuItem<String>(
+            value: "${title.index}",
+            child: Text(title.name),
+          );
+        }).toList();
+      }
+    );
   }
 
-  
+  Widget _appBarTitle(){
+    return Container(
+      width: MediaQuery.of(context).size.width-130.0,
+      height: 50,
+      //color: Colors.blue,   
+      alignment: Alignment.centerLeft,                         
+      child: Text(
+        currentTitle, 
+        textAlign: TextAlign.center, 
+        overflow: TextOverflow.ellipsis, 
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _settingsIcon(){
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      color: Colors.white,
+      iconSize: 30,
+      tooltip: 'Increase volume by 10',
+      onPressed: () {
+        settingScreenVisibility();
+      },
+    );
+  }
+
+  Widget _appBar(){
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.fromLTRB(10, 30, 10, 10),
+      color: const Color.fromARGB(255, 231, 51, 90),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _menuButton(),
+          _appBarTitle(),            
+          _settingsIcon(),
+        ],
+      ),
+    );
+  }
+
+  Widget _footer(){
+    return Container(
+      height: 30,
+      margin: const EdgeInsets.fromLTRB(10, 30, 10, 10),
+      padding: const EdgeInsets.symmetric(horizontal: 50),
+      color: const Color.fromARGB(255, 231, 51, 90).withOpacity(0.7),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.navigate_before),
+            tooltip: 'Increase volume by 10',
+            onPressed: () {_previousPage();},
+          ),
+          Text("${currentPage+1} / ${pages!.length}",style: const TextStyle(color: Colors.white),),
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.navigate_next),
+            tooltip: 'Increase volume by 10',
+            onPressed: () {_nextPage();},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingsScreen(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(10, 85, 10, 10),
+          height: 250,
+          width: 250,
+          color: const Color.fromARGB(255, 238, 231, 232),
+          child: Column(
+            children: [
+              _settingsSettingContainer(),
+              _settingsTextSize(),
+              _settingsTextFont(),
+              const SizedBox(height: 20,),
+              _settingsViewMode(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _settingsSettingContainer(){
+    return Container(
+      height: 40,
+      width: 250,
+      alignment: Alignment.center,
+      color: const Color.fromARGB(255, 231, 51, 90),
+      child: const Text("settings", style:TextStyle(color: Colors.white, fontSize: 18)),
+    );
+  }
+
+  Widget _settingsTextSize(){
+    return Container(
+      margin: const EdgeInsets.only(top: 30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            iconSize: 18,
+            icon: const Icon(Icons.format_color_text),
+            tooltip: 'Increase volume by 10',
+            onPressed: () {
+              setState(() {
+                textSize -= 2;
+              });
+            },
+          ),
+          const SizedBox(width: 50,),
+          IconButton(
+            icon: const Icon(Icons.format_color_text),
+            iconSize: 30,
+            tooltip: 'Increase volume by 10',
+            onPressed: () {
+              setState(() {
+                textSize += 2;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingsTextFont(){
+    return DropdownButton(
+      value: selectedValue,
+      elevation: 16,
+      underline: Container(
+        height: 2,
+        color: Colors.black,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          selectedValue = value!;
+        });
+      },
+      items: items.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _settingsViewMode(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        OutlinedButton(onPressed: (){
+            setState(() {
+              backroundColor = const Color.fromARGB(255, 235, 233, 233);
+              backroundTextColor = Colors.black;
+            });
+          },                              
+          style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),),
+          child: const Text('default', style: TextStyle(color: Colors.black),),
+        ),
+
+        OutlinedButton(onPressed: (){
+            setState(() {
+              backroundColor = const Color.fromARGB(124, 196, 196, 166);
+              backroundTextColor = Colors.black;
+            });
+          },                               
+          style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),), 
+          child: const Text('sepia', style: TextStyle(color: Colors.black),), 
+        ),
+
+        OutlinedButton(onPressed: (){
+            setState(() {
+              backroundColor = const Color.fromARGB(255, 22, 22, 22);
+              backroundTextColor = Colors.white;
+            });
+          },                              
+          style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),),padding: const EdgeInsets.all(6),), 
+          child: const Text('night', style: TextStyle(color: Colors.black),),
+        ),                              
+      ],
+    ); 
+  }   
+
 }
