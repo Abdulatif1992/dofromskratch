@@ -1,7 +1,9 @@
 import 'package:dofromscratch/class/book_titles.dart';
 import 'package:dofromscratch/class/epub_to_list.dart';
 import 'package:dofromscratch/test_screen.dart';
+//import 'package:dofromscratch/test_screen.dart';
 import 'package:dofromscratch/views/scrollbar_exp.dart';
+import 'package:dofromscratch/views/scrollbar_exp2.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
@@ -37,7 +39,7 @@ class _SecondScreenState extends State<SecondScreen> {
               // Use the captured context inside the async function.
               if (!currentContext.mounted) return;
               await Navigator.of(currentContext).push(MaterialPageRoute(
-                builder: (context) => ScrollBarExp(
+                builder: (context) => ScrollBarExp2(
                   data: htmlList,
                   page: 1,
                   location: 0,
@@ -56,9 +58,23 @@ class _SecondScreenState extends State<SecondScreen> {
           ), 
           const SizedBox(height: 10),          
           ElevatedButton(
-            onPressed: () { 
+            onPressed: () async{ 
+              BuildContext currentContext = context;
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
+              var htmlAndTitle = await getList.parseEpubWithChapters(); 
+              List<String> htmlList =    htmlAndTitle.item1;          
+              String fullHtml = htmlList.last;
+              htmlList.length = htmlList.length-1;  
+              List<BookTitle> titles = htmlAndTitle.item2;
+
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const TestScreen(),
+                builder: (context) => ImageHtmlParser(
+                  key: UniqueKey(),
+                  lastLocation: 0,
+                  titles: titles,
+                  fullHtml: fullHtml,
+                  textSize: 16,
+                ),
               ));
             },
             child: const Text('Go to test Screen'),
