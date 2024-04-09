@@ -2,8 +2,9 @@ import 'package:dofromscratch/class/book_titles.dart';
 import 'package:dofromscratch/class/epub_to_list.dart';
 import 'package:dofromscratch/test_screen.dart';
 //import 'package:dofromscratch/test_screen.dart';
-import 'package:dofromscratch/views/scrollbar_exp.dart';
-import 'package:dofromscratch/views/scrollbar_exp2.dart';
+//import 'package:dofromscratch/views/scrollbar_exp.dart';
+//import 'package:dofromscratch/views/scrollbar_exp2.dart';
+import 'package:dofromscratch/views/scrollbar_exp3.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
@@ -29,7 +30,7 @@ class _SecondScreenState extends State<SecondScreen> {
           ElevatedButton(
             onPressed: () async{ 
               BuildContext currentContext = context;
-              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-felix-holt-the-radical.epub');
               var htmlAndTitle = await getList.parseEpubWithChapters(); 
               List<String> htmlList =    htmlAndTitle.item1;          
               String fullHtml = htmlList.last;
@@ -39,7 +40,7 @@ class _SecondScreenState extends State<SecondScreen> {
               // Use the captured context inside the async function.
               if (!currentContext.mounted) return;
               await Navigator.of(currentContext).push(MaterialPageRoute(
-                builder: (context) => ScrollBarExp2(
+                builder: (context) => ScrollBarExp3(
                   data: htmlList,
                   page: 1,
                   location: 0,
@@ -60,13 +61,14 @@ class _SecondScreenState extends State<SecondScreen> {
           ElevatedButton(
             onPressed: () async{ 
               BuildContext currentContext = context;
-              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-felix-holt-the-radical.epub');
               var htmlAndTitle = await getList.parseEpubWithChapters(); 
               List<String> htmlList =    htmlAndTitle.item1;          
               String fullHtml = htmlList.last;
               htmlList.length = htmlList.length-1;  
               List<BookTitle> titles = htmlAndTitle.item2;
 
+              if (!currentContext.mounted) return;
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => ImageHtmlParser(
                   key: UniqueKey(),
@@ -90,7 +92,7 @@ class _SecondScreenState extends State<SecondScreen> {
     var dir = await getApplicationDocumentsDirectory();
 
     // Specify the asset file name
-    String filename = 'eliot-small.epub';
+    String filename = 'eliot-felix-holt-the-radical.epub';
     
     io.File file = io.File('${dir.path}/$filename');
     

@@ -10,7 +10,7 @@ class ImageHtmlParser extends StatefulWidget {
   final String fullHtml;
   final double textSize;
 
-  ImageHtmlParser({
+  const ImageHtmlParser({
     Key? key,
     required this.lastLocation,
     required this.titles,
@@ -70,40 +70,38 @@ class _ImageHtmlParserState extends State<ImageHtmlParser> {
         radius: const Radius.circular(6),
         interactive: true,
         child: SingleChildScrollView(
-          child: Container(
-            child: Html(
-              data: "<div style='font-size: 16px; font-family: 'Origin'; color: #${backroundTextColor.value.toRadixString(16)};'> ${widget.fullHtml} </div>",
-               extensions: [
-                OnImageTapExtension(
-                  onImageTap: (src, imgAttributes, element) {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => FullScreenImageViewer(src!)));
-                  },
-                ),
-                const TableHtmlExtension(),
-                TagWrapExtension(
-                  tagsToWrap: {"pagebr"},
-                  builder: (child) {
-                    return child;
-                  },
-                ),
-              ],
-              onLinkTap: (url, _, __) {},
-              style: {
-                "table": Style(
-                  backgroundColor: const Color.fromARGB(0x50, 0xee, 0xee, 0xee),
-                ),
-                "tr": Style(
-                  border: const Border(bottom: BorderSide(color: Colors.grey)),
-                ),
-                "th": Style(
-                  backgroundColor: Colors.grey,
-                ),
-                "td": Style(
-                  alignment: Alignment.topLeft,
-                ),
-              },
-            ),
+          child: Html(
+            data: "<div style='font-size: 16px; font-family: 'Origin'; color: #${backroundTextColor.value.toRadixString(16)};'> ${widget.fullHtml} </div>",
+             extensions: [
+              OnImageTapExtension(
+                onImageTap: (src, imgAttributes, element) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => FullScreenImageViewer(src!)));
+                },
+              ),
+              const TableHtmlExtension(),
+              TagWrapExtension(
+                tagsToWrap: {"pagebr"},
+                builder: (child) {
+                  return child;
+                },
+              ),
+            ],
+            onLinkTap: (url, _, __) {},
+            style: {
+              "table": Style(
+                backgroundColor: const Color.fromARGB(0x50, 0xee, 0xee, 0xee),
+              ),
+              "tr": Style(
+                border: const Border(bottom: BorderSide(color: Colors.grey)),
+              ),
+              "th": Style(
+                backgroundColor: Colors.grey,
+              ),
+              "td": Style(
+                alignment: Alignment.topLeft,
+              ),
+            },
           ),
         ),
       ),

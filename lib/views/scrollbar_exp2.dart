@@ -43,7 +43,7 @@ class CustomScrollViewWithSmallScrollbar extends StatefulWidget {
   final String fullHtml;
   final double textSize;
 
-  CustomScrollViewWithSmallScrollbar({
+  const CustomScrollViewWithSmallScrollbar({
     Key? key,
     required this.lastLocation,
     required this.titles,
@@ -61,8 +61,11 @@ class _CustomScrollViewWithSmallScrollbarState
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _textSizeNotifier = ValueNotifier<double>(16);
 
+  String? html;
+
   @override
   void initState() {
+    html = widget.fullHtml;
     super.initState();
     //_scrollController.addListener(_scrollListener);
   }
@@ -122,7 +125,7 @@ class _CustomScrollViewWithSmallScrollbarState
               padding: const EdgeInsets.fromLTRB(10, 30, 10, 10),
               color: backroundColor,
               child: Html(
-                data: "<div style='font-size: ${textSize}px; font-family: $selectedValue; color: #${backroundTextColor.value.toRadixString(16)};'> ${widget.fullHtml} </div>",
+                data: "<div style='font-size: $textSize px; font-family: $selectedValue; color: #${backroundTextColor.value.toRadixString(16)};'> $html </div>",
                 extensions: [
                   OnImageTapExtension(
                     onImageTap: (src, imgAttributes, element) {
