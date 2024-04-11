@@ -42,6 +42,7 @@ dependencies:
   flutter_html_table: ^3.0.0-beta.2
   html: ^0.15.4
   tuple: ^2.0.2
+  flutter_session_manager: ^1.0.3
 
 dev_dependencies:
   flutter_test:

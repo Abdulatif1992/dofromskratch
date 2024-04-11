@@ -116,7 +116,6 @@ class GetListFromEpub {
 
               // Create a file in the current directory
               String filePath = '${dir.path}/$imageNameWithoutPrefix';
-              print(filePath);
               io.File imageFile = io.File(filePath);
 
               // Write image data to the file

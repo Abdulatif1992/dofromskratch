@@ -1,13 +1,16 @@
 import 'package:dofromscratch/class/book_titles.dart';
 import 'package:dofromscratch/views/image_view.dart';
 import 'package:dofromscratch/views/part_of_html.dart';
+import 'package:dofromscratch/models/books.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
 
 class ScrollBarExp3 extends StatefulWidget {
-  const ScrollBarExp3({super.key, required this.data, required this.page, required this.location, required this.fullHtml, required this.titles});
+  const ScrollBarExp3({super.key, required this.bookId, required this.data, required this.page, required this.location, required this.fullHtml, required this.titles});
 
+  final String bookId;
   final List<String> data;
   final int page;
   final double location;
@@ -119,11 +122,7 @@ class _ScrollBarExp3State extends State<ScrollBarExp3> {
   void _specialPage(int page){
     setState(() {
       reverseResult2 = true;
-    });
-    // _pageController.animateToPage(page,
-    //   duration: const Duration(milliseconds: 400),
-    //   curve: Curves.easeIn
-    // );   
+    });   
     _pageController.jumpToPage(page); 
   }
 
@@ -177,12 +176,11 @@ class _ScrollBarExp3State extends State<ScrollBarExp3> {
     });
   }
 
-  void _handleBackButtonPress(BuildContext context) {
-    // Your function logic here
-    //print("current page is $currentPage");
-    //double scrollPosition =  _scrollControllers![currentPage].offset;
-    //print(scrollPosition);
-    // You can perform any other actions or logic here.
+  void _handleBackButtonPress(BuildContext context) async{
+    HtmlBook? book;
+    double scrollPosition =  _scrollControllers![currentPage].offset;
+    book = HtmlBook(bookId: widget.bookId, page: currentPage, location: scrollPosition);      
+    await SessionManager().set(widget.bookId, book); 
   }
 
   @override

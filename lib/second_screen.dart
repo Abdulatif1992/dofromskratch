@@ -1,5 +1,6 @@
 import 'package:dofromscratch/class/book_titles.dart';
 import 'package:dofromscratch/class/epub_to_list.dart';
+import 'package:dofromscratch/models/books.dart';
 import 'package:dofromscratch/test_screen.dart';
 //import 'package:dofromscratch/test_screen.dart';
 //import 'package:dofromscratch/views/scrollbar_exp.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:flutter_session_manager/flutter_session_manager.dart';
 
 
 class SecondScreen extends StatefulWidget {
@@ -37,13 +39,25 @@ class _SecondScreenState extends State<SecondScreen> {
               htmlList.length = htmlList.length-1;  
               List<BookTitle> titles = htmlAndTitle.item2;
 
+              int page = 0;
+              double location = 0;
+
+              bool checker = await SessionManager().containsKey("10001");
+              if(checker)
+              {
+                HtmlBook book  = HtmlBook.fromJson( await SessionManager().get("10001"));
+                page = book.page!;
+                location = book.location;
+              }
+
               // Use the captured context inside the async function.
               if (!currentContext.mounted) return;
               await Navigator.of(currentContext).push(MaterialPageRoute(
                 builder: (context) => ScrollBarExp3(
+                  bookId: '10001',
                   data: htmlList,
-                  page: 1,
-                  location: 0,
+                  page: page,
+                  location: location,
                   fullHtml: fullHtml,
                   titles: titles,
                 ),
@@ -58,19 +72,7 @@ class _SecondScreenState extends State<SecondScreen> {
             child: const Text('Save file to local'),
           ),
 
-          const SizedBox(height: 10),          
-          ElevatedButton(
-            onPressed: () async { 
-              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
-              var htmlAndTitle = await getList.parseEpubWithChapters(); 
-              List<String> htmlList =    htmlAndTitle.item1;     
-              //print(htmlList);     
-              String fullHtml = htmlList.last;
-              htmlList.length = htmlList.length-1;  
-              List<BookTitle> titles = htmlAndTitle.item2;
-            },
-            child: const Text('Check the file'),
-          ),
+          
          
           const SizedBox(height: 10),          
           ElevatedButton(
