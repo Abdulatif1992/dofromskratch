@@ -249,7 +249,7 @@ class _ScrollBarExp3State extends State<ScrollBarExp3> {
                     radius: const Radius.circular(12),
                     thumbVisibility:true,
                     interactive: true,
-                    controller: _pageController,
+                    controller: _scrollControllers![index],
                     child: SingleChildScrollView(
                       reverse: reverseResult,
                       controller: _scrollControllers![index],

@@ -30,7 +30,7 @@ class _SecondScreenState extends State<SecondScreen> {
           ElevatedButton(
             onPressed: () async{ 
               BuildContext currentContext = context;
-              GetListFromEpub getList = GetListFromEpub(name:'eliot-felix-holt-the-radical.epub');
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
               var htmlAndTitle = await getList.parseEpubWithChapters(); 
               List<String> htmlList =    htmlAndTitle.item1;          
               String fullHtml = htmlList.last;
@@ -56,12 +56,27 @@ class _SecondScreenState extends State<SecondScreen> {
           ElevatedButton(
             onPressed: () { saveFromAssetToLocal();},
             child: const Text('Save file to local'),
-          ), 
+          ),
+
+          const SizedBox(height: 10),          
+          ElevatedButton(
+            onPressed: () async { 
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
+              var htmlAndTitle = await getList.parseEpubWithChapters(); 
+              List<String> htmlList =    htmlAndTitle.item1;     
+              //print(htmlList);     
+              String fullHtml = htmlList.last;
+              htmlList.length = htmlList.length-1;  
+              List<BookTitle> titles = htmlAndTitle.item2;
+            },
+            child: const Text('Check the file'),
+          ),
+         
           const SizedBox(height: 10),          
           ElevatedButton(
             onPressed: () async{ 
               BuildContext currentContext = context;
-              GetListFromEpub getList = GetListFromEpub(name:'eliot-felix-holt-the-radical.epub');
+              GetListFromEpub getList = GetListFromEpub(name:'eliot-small.epub');
               var htmlAndTitle = await getList.parseEpubWithChapters(); 
               List<String> htmlList =    htmlAndTitle.item1;          
               String fullHtml = htmlList.last;
@@ -92,7 +107,7 @@ class _SecondScreenState extends State<SecondScreen> {
     var dir = await getApplicationDocumentsDirectory();
 
     // Specify the asset file name
-    String filename = 'eliot-felix-holt-the-radical.epub';
+    String filename = 'eliot-small.epub';
     
     io.File file = io.File('${dir.path}/$filename');
     
