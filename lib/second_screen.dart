@@ -25,6 +25,51 @@ class _SecondScreenState extends State<SecondScreen> {
   String name = 'eliot-small.epub';
   String folder = 'eliot-small';
 
+  bool isLoading = false;
+
+  void _openScrollbarExp() async {
+    // Set loading state to true
+    setState(() {
+      isLoading = true;
+    });
+
+    BuildContext currentContext = context;
+    GetListFromEpub getList = GetListFromEpub(name: name, folder: folder);
+    var htmlAndTitle = await getList.parseEpubWithChapters();
+    List<String> htmlList = htmlAndTitle.item1;
+    String fullHtml = htmlList.last;
+    htmlList.length = htmlList.length - 1;
+    List<BookTitle> titles = htmlAndTitle.item2;
+
+    int page = 0;
+    double location = 0;
+
+    bool checker = await SessionManager().containsKey("10001");
+    if (checker) {
+      HtmlBook book = HtmlBook.fromJson(await SessionManager().get("10001"));
+      page = book.page!;
+      location = book.location;
+    }
+
+    // Use the captured context inside the async function.
+    if (!currentContext.mounted) return;
+    await Navigator.of(currentContext).push(MaterialPageRoute(
+      builder: (context) => ScrollBarExp3(
+        bookId: '10001',
+        data: htmlList,
+        page: page,
+        location: location,
+        fullHtml: fullHtml,
+        titles: titles,
+      ),
+    ));
+
+    // Set loading state to false
+    setState(() {
+      isLoading = false;
+    });
+  }  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,40 +78,10 @@ class _SecondScreenState extends State<SecondScreen> {
       ),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: () async{ 
-              BuildContext currentContext = context;
-              GetListFromEpub getList = GetListFromEpub(name:name, folder: folder);
-              var htmlAndTitle = await getList.parseEpubWithChapters(); 
-              List<String> htmlList =    htmlAndTitle.item1;          
-              String fullHtml = htmlList.last;
-              htmlList.length = htmlList.length-1;  
-              List<BookTitle> titles = htmlAndTitle.item2;
-
-              int page = 0;
-              double location = 0;
-
-              bool checker = await SessionManager().containsKey("10001");
-              if(checker)
-              {
-                HtmlBook book  = HtmlBook.fromJson( await SessionManager().get("10001"));
-                page = book.page!;
-                location = book.location;
-              }
-
-              // Use the captured context inside the async function.
-              if (!currentContext.mounted) return;
-              await Navigator.of(currentContext).push(MaterialPageRoute(
-                builder: (context) => ScrollBarExp3(
-                  bookId: '10001',
-                  data: htmlList,
-                  page: page,
-                  location: location,
-                  fullHtml: fullHtml,
-                  titles: titles,
-                ),
-              ));         
-            },
+          isLoading
+          ? const CircularProgressIndicator() // Show loading indicator
+          : ElevatedButton(
+            onPressed: _openScrollbarExp,
             child: const Text('Open ScrollbarExp'),
           ),
                     
